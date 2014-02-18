@@ -31,14 +31,14 @@ class Provider extends \OC\Search\Provider {
      * @return array list of \OCA\Calendar\Search\Event
      */
     function search($query) {
-	$calendars = OC_Calendar_Calendar::allCalendars(OCP\USER::getUser(), true);
+	$calendars = \OC_Calendar_Calendar::allCalendars(\OCP\USER::getUser(), true);
 	// check if the calenar is enabled
-	if (count($calendars) == 0 || !OCP\App::isEnabled('calendar')) {
+	if (count($calendars) == 0 || !\OCP\App::isEnabled('calendar')) {
 	    return array();
 	}
 	$results = array();
 	foreach ($calendars as $calendar) {
-	    $objects = OC_Calendar_Object::all($calendar['id']);
+	    $objects = \OC_Calendar_Object::all($calendar['id']);
 	    $date = strtotime($query);
 	    // search all calendar objects, one by one
 	    foreach ($objects as $object) {
@@ -84,15 +84,14 @@ class Provider extends \OC\Search\Provider {
      * @return array [start, end] in Unix time
      */
     private function getDateRange($calendarObject) {
-	$calendarData = OC_VObject::parse($calendarObject['calendardata']);
+	$calendarData = \OC_VObject::parse($calendarObject['calendardata']);
 	// set start
 	$start = $calendarData->VEVENT->DTSTART->getDateTime();
-	$start->setTimezone($this->getUserTimezone());
+	$start->setTimezone(Event::getUserTimezone());
 	// set end
-	$end = OC_Calendar_Object::getDTEndFromVEvent($calendarData->VEVENT)->getDateTime();
-	$end->setTimezone($this->getUserTimezone());
+	$end = \OC_Calendar_Object::getDTEndFromVEvent($calendarData->VEVENT)->getDateTime();
+	$end->setTimezone(Event::getUserTimezone());
 	// return
 	return array($start->getTimestamp(), $end->getTimestamp());
     }
-
 }
